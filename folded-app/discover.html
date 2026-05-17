@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folded — Discover</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tabler Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #EDE8DC;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+    }
+
+    /* =============================================
+       APP SHELL
+    ============================================= */
+    .app {
+      background: #F5F0E8;
+      width: 380px;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 1px solid #D6CAB5;
+    }
+
+    /* =============================================
+       TOP BAR
+    ============================================= */
+    .topbar {
+      background: #F5F0E8;
+      padding: 18px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-family: 'Lora', serif;
+      font-size: 20px;
+      color: #3D2B1F;
+      flex: 1; /* pushes the icon to the right */
+    }
+
+    /* =============================================
+       SEARCH BAR
+    ============================================= */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #FDF6ED;
+      border: 1px solid #E2D3BE;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin: 0 20px 14px;
+    }
+
+    .search-bar input {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: #3D2B1F;
+      font-family: 'DM Sans', sans-serif;
+      width: 100%;
+      outline: none; /* removes the default blue border on focus */
+    }
+
+    .search-bar input::placeholder {
+      color: #C4A882;
+    }
+
+    .search-bar i {
+      color: #A0855A;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* =============================================
+       SECTION LABELS
+    ============================================= */
+    .section-label {
+      padding: 0 20px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #A0855A;
+      font-weight: 500;
+    }
+
+    /* =============================================
+       MOOD FILTERS
+       Horizontal scroll row of icon chips
+    ============================================= */
+    .scroll-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .scroll-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Each mood chip: icon circle + label below */
+    .mood-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .mood-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    /* Orange border shows which mood is selected */
+    .mood-icon.active {
+      border-color: #A0522D;
+    }
+
+    .mood-label {
+      font-size: 10px;
+      color: #A0855A;
+      white-space: nowrap;
+    }
+
+    /* Background colours for each mood */
+    .mood-cozy     { background: #EDE0CC; color: #3D2B1F; }
+    .mood-dark     { background: #2E2520; color: #C4A882; }
+    .mood-funny    { background: #FDE8C8; color: #3D2B1F; }
+    .mood-romantic { background: #F5E0E8; color: #3D2B1F; }
+    .mood-thrilling{ background: #E8EDF5; color: #3D2B1F; }
+    .mood-hopeful  { background: #E0EDE0; color: #3D2B1F; }
+
+    /* =============================================
+       GENRE GRID
+       3-column grid of genre tiles
+    ============================================= */
+    .genre-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 0 20px 20px;
+    }
+
+    .genre-tile {
+      border-radius: 14px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+
+    .genre-tile:hover {
+      transform: scale(1.03);
+    }
+
+    .genre-tile .g-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .genre-tile .g-name {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .genre-tile .g-count {
+      font-size: 10px;
+      margin-top: 2px;
+      opacity: 0.7;
+    }
+
+    /* Each genre has its own colour theme */
+    .gt-fantasy    { background: #EDE8F5; color: #5A3A8C; }
+    .gt-literary   { background: #EDE8DC; color: #3D2B1F; }
+    .gt-mystery    { background: #2E2520; color: #C4A882; }
+    .gt-romance    { background: #F5E0E8; color: #8C3A5A; }
+    .gt-nonfiction { background: #E0EDE0; color: #2A5C3A; }
+    .gt-scifi      { background: #E8EDF5; color: #2A3A6B; }
+
+    /* =============================================
+       VISUAL SEARCH GRID
+       Pinterest-style 2-column book grid
+    ============================================= */
+    .visual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .vbook {
+      background: #FDF6ED;
+      border-radius: 14px;
+      border: 1px solid #E2D3BE;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+
+    .vbook:hover {
+      transform: scale(1.02);
+    }
+
+    .vbook-cover {
+      height: 130px;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      position: relative; /* needed so the badge can sit in the corner */
+    }
+
+    /* Book cover colour themes */
+    .vc-a { background: #8B6F9E; }
+    .vc-b { background: #6B8C6E; }
+    .vc-c { background: #C4895A; }
+    .vc-d { background: #5A7A9E; }
+
+    .vbook-cover-title {
+      font-family: 'Lora', serif;
+      font-size: 12px;
+      color: #FDF6ED;
+      line-height: 1.3;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Small badge in the top-right corner of the cover */
+    .trending-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #A0522D;
+      color: #FDF6ED;
+      font-size: 9px;
+      padding: 3px 7px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .ai-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #3D2B1F;
+      color: #C4A882;
+      font-size: 9px;
+      padding: 3px 7px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .vbook-meta {
+      padding: 10px 12px 12px;
+    }
+
+    .vbook-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #3D2B1F;
+      margin-bottom: 2px;
+      font-family: 'Lora', serif;
+    }
+
+    .vbook-author {
+      font-size: 11px;
+      color: #A0855A;
+    }
+
+    .vbook-stars {
+      font-size: 10px;
+      color: #C4892A;
+      margin-top: 3px;
+    }
+
+    /* =============================================
+       TRENDING BOARDS
+       Ranked list of popular books
+    ============================================= */
+    .trending-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 20px 20px;
+    }
+
+    .trend-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #FDF6ED;
+      border: 1px solid #E2D3BE;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .trend-item:hover {
+      background: #F0E8D8;
+    }
+
+    /* Big faded number for the rank */
+    .trend-rank {
+      font-family: 'Lora', serif;
+      font-size: 22px;
+      color: #D6CAB5;
+      font-weight: 500;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    /* Small rectangle representing the book cover */
+    .trend-cover {
+      width: 38px;
+      height: 50px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .tc-a { background: #C4895A; }
+    .tc-b { background: #7A8C6E; }
+    .tc-c { background: #8B6F9E; }
+
+    .trend-info {
+      flex: 1; /* takes up remaining space */
+    }
+
+    .trend-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #3D2B1F;
+      font-family: 'Lora', serif;
+      margin-bottom: 2px;
+    }
+
+    .trend-author {
+      font-size: 11px;
+      color: #A0855A;
+    }
+
+    .trend-stat {
+      font-size: 10px;
+      color: #C4892A;
+      margin-top: 3px;
+    }
+
+    /* =============================================
+       AI RECOMMENDATIONS BANNER
+    ============================================= */
+    .ai-banner {
+      margin: 0 20px 20px;
+      background: #3D2B1F;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .ai-banner:hover {
+      opacity: 0.9;
+    }
+
+    .ai-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #A0522D;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #FDF6ED;
+      flex-shrink: 0;
+    }
+
+    .ai-label {
+      font-size: 11px;
+      color: #C4A882;
+      margin-bottom: 3px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .ai-title {
+      font-family: 'Lora', serif;
+      font-size: 15px;
+      color: #FDF6ED;
+    }
+
+    /* =============================================
+       BOTTOM NAVIGATION
+    ============================================= */
+    .bottom-nav {
+      background: #FDF6ED;
+      border-top: 1px solid #E2D3BE;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      color: #A0855A;
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: #A0522D;
+    }
+
+    .nav-item i {
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="page-title">Discover</div>
+      <i class="ti ti-adjustments-horizontal" style="font-size:20px; color:#6B4C3B; cursor:pointer;" title="Filters"></i>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-bar">
+      <i class="ti ti-search"></i>
+      <input type="text" placeholder="Search books, authors, moods…">
+    </div>
+
+    <!-- MOOD FILTERS -->
+    <div class="section-label">Browse by mood</div>
+    <div class="scroll-row">
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-cozy active">
+          <i class="ti ti-coffee"></i>
+        </div>
+        <span class="mood-label">Cozy</span>
+      </div>
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-dark">
+          <i class="ti ti-moon"></i>
+        </div>
+        <span class="mood-label">Dark</span>
+      </div>
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-funny">
+          <i class="ti ti-mood-smile"></i>
+        </div>
+        <span class="mood-label">Funny</span>
+      </div>
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-romantic">
+          <i class="ti ti-heart"></i>
+        </div>
+        <span class="mood-label">Romantic</span>
+      </div>
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-thrilling">
+          <i class="ti ti-bolt"></i>
+        </div>
+        <span class="mood-label">Thrilling</span>
+      </div>
+
+      <div class="mood-chip" onclick="activateMood(this)">
+        <div class="mood-icon mood-hopeful">
+          <i class="ti ti-sun"></i>
+        </div>
+        <span class="mood-label">Hopeful</span>
+      </div>
+
+    </div>
+
+    <!-- GENRE GRID -->
+    <div class="section-label">Browse by genre</div>
+    <div class="genre-grid">
+
+      <div class="genre-tile gt-fantasy" onclick="alert('Fantasy genre selected!')">
+        <div class="g-icon"><i class="ti ti-wand"></i></div>
+        <div class="g-name">Fantasy</div>
+        <div class="g-count">2,400+ books</div>
+      </div>
+
+      <div class="genre-tile gt-literary" onclick="alert('Literary genre selected!')">
+        <div class="g-icon"><i class="ti ti-feather"></i></div>
+        <div class="g-name">Literary</div>
+        <div class="g-count">1,800+ books</div>
+      </div>
+
+      <div class="genre-tile gt-mystery" onclick="alert('Mystery genre selected!')">
+        <div class="g-icon"><i class="ti ti-eye"></i></div>
+        <div class="g-name">Mystery</div>
+        <div class="g-count">3,100+ books</div>
+      </div>
+
+      <div class="genre-tile gt-romance" onclick="alert('Romance genre selected!')">
+        <div class="g-icon"><i class="ti ti-heart"></i></div>
+        <div class="g-name">Romance</div>
+        <div class="g-count">2,900+ books</div>
+      </div>
+
+      <div class="genre-tile gt-nonfiction" onclick="alert('Non-fiction genre selected!')">
+        <div class="g-icon"><i class="ti ti-bulb"></i></div>
+        <div class="g-name">Non-fiction</div>
+        <div class="g-count">1,500+ books</div>
+      </div>
+
+      <div class="genre-tile gt-scifi" onclick="alert('Sci-fi genre selected!')">
+        <div class="g-icon"><i class="ti ti-planet"></i></div>
+        <div class="g-name">Sci-fi</div>
+        <div class="g-count">2,200+ books</div>
+      </div>
+
+    </div>
+
+    <!-- VISUAL SEARCH GRID -->
+    <div class="section-label">Visual search grid</div>
+    <div class="visual-grid">
+
+      <div class="vbook" onclick="alert('You tapped: Babel')">
+        <div class="vbook-cover vc-a">
+          <div class="trending-badge">Trending</div>
+          <div class="vbook-cover-title">Babel</div>
+        </div>
+        <div class="vbook-meta">
+          <div class="vbook-title">Babel</div>
+          <div class="vbook-author">R.F. Kuang</div>
+          <div class="vbook-stars">★★★★★</div>
+        </div>
+      </div>
+
+      <div class="vbook" onclick="alert('You tapped: Cerulean Sea')">
+        <div class="vbook-cover vc-b">
+          <div class="ai-badge">For you</div>
+          <div class="vbook-cover-title">The House in the Cerulean Sea</div>
+        </div>
+        <div class="vbook-meta">
+          <div class="vbook-title">Cerulean Sea</div>
+          <div class="vbook-author">TJ Klune</div>
+          <div class="vbook-stars">★★★★★</div>
+        </div>
+      </div>
+
+      <div class="vbook" onclick="alert('You tapped: Fourth Wing')">
+        <div class="vbook-cover vc-c">
+          <div class="trending-badge">Trending</div>
+          <div class="vbook-cover-title">Fourth Wing</div>
+        </div>
+        <div class="vbook-meta">
+          <div class="vbook-title">Fourth Wing</div>
+          <div class="vbook-author">Rebecca Yarros</div>
+          <div class="vbook-stars">★★★★☆</div>
+        </div>
+      </div>
+
+      <div class="vbook" onclick="alert('You tapped: Bright Creatures')">
+        <div class="vbook-cover vc-d">
+          <div class="ai-badge">For you</div>
+          <div class="vbook-cover-title">Remarkably Bright Creatures</div>
+        </div>
+        <div class="vbook-meta">
+          <div class="vbook-title">Bright Creatures</div>
+          <div class="vbook-author">Shelby Van Pelt</div>
+          <div class="vbook-stars">★★★★☆</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TRENDING BOARDS -->
+    <div class="section-label">Trending boards</div>
+    <div class="trending-row">
+
+      <div class="trend-item" onclick="alert('You tapped: Tomorrow, and Tomorrow')">
+        <div class="trend-rank">1</div>
+        <div class="trend-cover tc-a"></div>
+        <div class="trend-info">
+          <div class="trend-title">Tomorrow, and Tomorrow</div>
+          <div class="trend-author">Gabrielle Zevin</div>
+          <div class="trend-stat">↑ 840 reads this week</div>
+        </div>
+        <i class="ti ti-chevron-right" style="color:#C4A882; font-size:16px;"></i>
+      </div>
+
+      <div class="trend-item" onclick="alert('You tapped: Intermezzo')">
+        <div class="trend-rank">2</div>
+        <div class="trend-cover tc-b"></div>
+        <div class="trend-info">
+          <div class="trend-title">Intermezzo</div>
+          <div class="trend-author">Sally Rooney</div>
+          <div class="trend-stat">↑ 610 reads this week</div>
+        </div>
+        <i class="ti ti-chevron-right" style="color:#C4A882; font-size:16px;"></i>
+      </div>
+
+      <div class="trend-item" onclick="alert('You tapped: James')">
+        <div class="trend-rank">3</div>
+        <div class="trend-cover tc-c"></div>
+        <div class="trend-info">
+          <div class="trend-title">James</div>
+          <div class="trend-author">Percival Everett</div>
+          <div class="trend-stat">↑ 490 reads this week</div>
+        </div>
+        <i class="ti ti-chevron-right" style="color:#C4A882; font-size:16px;"></i>
+      </div>
+
+    </div>
+
+    <!-- AI RECOMMENDATIONS BANNER -->
+    <div class="ai-banner" onclick="alert('AI Recommendations coming soon!')">
+      <div class="ai-icon">
+        <i class="ti ti-sparkles"></i>
+      </div>
+      <div class="ai-text">
+        <div class="ai-label">AI recommendations</div>
+        <div class="ai-title">Picks made just for you →</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-users"></i>
+        <span>Community</span>
+      </a>
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-home"></i>
+        <span>Home</span>
+      </a>
+      <a class="nav-item active" href="discover.html">
+        <i class="ti ti-compass"></i>
+        <span>Discover</span>
+      </a>
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-books"></i>
+        <span>My Shelves</span>
+      </a>
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+
+  </div><!-- end .app -->
+
+  <script>
+    // Switches the active mood chip when you click one
+    function activateMood(chip) {
+      // Remove "active" from all mood icons
+      const allMoods = document.querySelectorAll('.mood-icon');
+      allMoods.forEach(function(icon) {
+        icon.classList.remove('active');
+      });
+      // Add "active" to the icon inside the clicked chip
+      chip.querySelector('.mood-icon').classList.add('active');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folded — Home Feed</title>
+
+  <!-- Google Fonts: Lora (for headings/titles) and DM Sans (for body text) -->
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tabler Icons (for all the little icons like search, bell, home etc.) -->
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       RESET & BASE
+       Removes default browser spacing and sets
+       box-sizing so padding doesn't break layouts
+    ============================================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Page background — centres the phone mockup */
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #EDE8DC;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
+    }
+
+    /* =============================================
+       APP SHELL
+       The phone-shaped container that holds
+       everything inside it
+    ============================================= */
+    .app {
+      background: #F5F0E8;
+      width: 380px;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 1px solid #D6CAB5;
+    }
+
+    /* =============================================
+       TOP BAR
+       Logo, notification bell, and avatar
+    ============================================= */
+    .topbar {
+      background: #F5F0E8;
+      padding: 18px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Lora', serif;
+      font-size: 20px;
+      color: #3D2B1F;
+      letter-spacing: -0.3px;
+    }
+
+    /* The italic accent colour in the logo */
+    .logo span {
+      color: #A0522D;
+      font-style: italic;
+    }
+
+    .top-icons {
+      display: flex;
+      gap: 14px;
+      color: #6B4C3B;
+      font-size: 20px;
+      align-items: center;
+    }
+
+    .top-icons i {
+      cursor: pointer;
+    }
+
+    /* Small orange dot on the bell to show notifications */
+    .bell-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .notif-dot {
+      width: 6px;
+      height: 6px;
+      background: #C4892A;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    /* Round user avatar with initials */
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #C4895A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #FDF6ED;
+      cursor: pointer;
+    }
+
+    /* =============================================
+       GREETING & FILTERS
+    ============================================= */
+    .greeting {
+      padding: 4px 20px 14px;
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      color: #6B4C3B;
+      font-style: italic;
+    }
+
+    /* Horizontal scrolling row of filter pills */
+    .filters {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 14px;
+      overflow-x: auto;
+      scrollbar-width: none; /* hides scrollbar in Firefox */
+    }
+
+    .filters::-webkit-scrollbar {
+      display: none; /* hides scrollbar in Chrome/Safari */
+    }
+
+    /* Each filter button */
+    .pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+      cursor: pointer;
+      border: 1px solid #C4A882;
+      color: #6B4C3B;
+      background: transparent;
+      transition: all 0.15s;
+    }
+
+    /* The currently selected filter */
+    .pill.active {
+      background: #A0522D;
+      color: #FDF6ED;
+      border-color: #A0522D;
+    }
+
+    /* =============================================
+       SECTION LABELS
+       The small uppercase labels above each section
+    ============================================= */
+    .section-label {
+      padding: 0 20px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #A0855A;
+      font-weight: 500;
+    }
+
+    /* =============================================
+       BOOK PIN GRID
+       Pinterest-style 2-column grid of book cards
+    ============================================= */
+    .pinned-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* 2 equal columns */
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .book-pin {
+      background: #FDF6ED;
+      border-radius: 16px;
+      border: 1px solid #E2D3BE;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .book-pin:hover {
+      transform: scale(1.02); /* slight grow on hover */
+    }
+
+    /* Coloured rectangle that represents the book cover */
+    .book-cover {
+      height: 120px;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      position: relative;
+    }
+
+    /* Each cover has its own background colour */
+    .cover-a { background: #C4895A; }
+    .cover-b { background: #7A8C6E; }
+    .cover-c { background: #8B6F9E; }
+    .cover-d { background: #C4A24A; }
+
+    .cover-title {
+      font-family: 'Lora', serif;
+      font-size: 13px;
+      color: #FDF6ED;
+      font-weight: 500;
+      line-height: 1.3;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Info below the book cover */
+    .book-meta {
+      padding: 10px 12px;
+    }
+
+    .book-author {
+      font-size: 11px;
+      color: #A0855A;
+      margin-bottom: 4px;
+    }
+
+    .stars {
+      font-size: 11px;
+      color: #C4892A;
+      letter-spacing: 1px;
+    }
+
+    /* Small coloured badge e.g. "Reading now" */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .badge-reading {
+      background: #E8F0E0;
+      color: #3A5C2A;
+    }
+
+    .badge-friend {
+      background: #EDE8F5;
+      color: #5A3A8C;
+    }
+
+    /* =============================================
+       FRIENDS' RECENT READS
+       Horizontal scrolling row of friend cards
+    ============================================= */
+    .friends-section {
+      padding: 0 20px 16px;
+    }
+
+    .friend-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .friend-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .friend-card {
+      background: #FDF6ED;
+      border: 1px solid #E2D3BE;
+      border-radius: 14px;
+      padding: 12px;
+      min-width: 140px;
+      cursor: pointer;
+      flex-shrink: 0; /* stops cards from squishing */
+    }
+
+    /* Round coloured circle with friend's initial */
+    .friend-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #FDF6ED;
+    }
+
+    .av-a { background: #C4895A; }
+    .av-b { background: #7A8C6E; }
+    .av-c { background: #8B6F9E; }
+
+    .friend-name {
+      font-size: 12px;
+      color: #3D2B1F;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .friend-book {
+      font-size: 11px;
+      color: #A0855A;
+      font-style: italic;
+      font-family: 'Lora', serif;
+      line-height: 1.3;
+    }
+
+    /* =============================================
+       CURATED COLLECTIONS
+    ============================================= */
+    .curated {
+      padding: 0 20px 20px;
+    }
+
+    /* Dark collection card */
+    .collection-card {
+      background: #3D2B1F;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: opacity 0.15s;
+    }
+
+    .collection-card:hover {
+      opacity: 0.9;
+    }
+
+    .coll-title {
+      font-family: 'Lora', serif;
+      color: #FDF6ED;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .coll-sub {
+      font-size: 11px;
+      color: #C4A882;
+    }
+
+    .coll-icon {
+      font-size: 28px;
+      color: #C4A882;
+    }
+
+    /* Light version of the collection card */
+    .collection-card.light {
+      background: #EDE8DC;
+    }
+
+    .collection-card.light .coll-title {
+      color: #3D2B1F;
+    }
+
+    .collection-card.light .coll-sub {
+      color: #A0855A;
+    }
+
+    .collection-card.light .coll-icon {
+      color: #A0522D;
+    }
+
+    /* =============================================
+       BOTTOM NAVIGATION BAR
+    ============================================= */
+    .bottom-nav {
+      background: #FDF6ED;
+      border-top: 1px solid #E2D3BE;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      color: #A0855A;
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    /* The active/current screen tab */
+    .nav-item.active {
+      color: #A0522D;
+    }
+
+    .nav-item i {
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="logo">fold<span>ed</span></div>
+      <div class="top-icons">
+        <i class="ti ti-search" title="Search"></i>
+        <span class="bell-wrap">
+          <i class="ti ti-bell" title="Notifications"></i>
+          <span class="notif-dot"></span>
+        </span>
+        <div class="avatar">M</div>
+      </div>
+    </div>
+
+    <!-- GREETING -->
+    <div class="greeting">Good afternoon, Maya ☀</div>
+
+    <!-- FILTER PILLS -->
+    <div class="filters">
+      <button class="pill active" onclick="filterPill(this)">For you</button>
+      <button class="pill" onclick="filterPill(this)">Friends</button>
+      <button class="pill" onclick="filterPill(this)">Fiction</button>
+      <button class="pill" onclick="filterPill(this)">Non-fiction</button>
+      <button class="pill" onclick="filterPill(this)">Cozy reads</button>
+    </div>
+
+    <!-- PINNED BOOK GRID -->
+    <div class="section-label">Pinned picks</div>
+    <div class="pinned-row">
+
+      <div class="book-pin" onclick="alert('You tapped: The Midnight Library')">
+        <div class="book-cover cover-a">
+          <div class="cover-title">The Midnight Library</div>
+        </div>
+        <div class="book-meta">
+          <div class="book-author">Matt Haig</div>
+          <div class="stars">★★★★★</div>
+          <div class="badge badge-reading">Reading now</div>
+        </div>
+      </div>
+
+      <div class="book-pin" onclick="alert('You tapped: Pachinko')">
+        <div class="book-cover cover-b">
+          <div class="cover-title">Pachinko</div>
+        </div>
+        <div class="book-meta">
+          <div class="book-author">Min Jin Lee</div>
+          <div class="stars">★★★★☆</div>
+          <div class="badge badge-friend">Friend loved it</div>
+        </div>
+      </div>
+
+      <div class="book-pin" onclick="alert('You tapped: Piranesi')">
+        <div class="book-cover cover-c">
+          <div class="cover-title">Piranesi</div>
+        </div>
+        <div class="book-meta">
+          <div class="book-author">Susanna Clarke</div>
+          <div class="stars">★★★★★</div>
+          <div class="badge badge-reading">Want to read</div>
+        </div>
+      </div>
+
+      <div class="book-pin" onclick="alert('You tapped: Crying in H Mart')">
+        <div class="book-cover cover-d">
+          <div class="cover-title">Crying in H Mart</div>
+        </div>
+        <div class="book-meta">
+          <div class="book-author">Michelle Zauner</div>
+          <div class="stars">★★★★☆</div>
+          <div class="badge badge-friend">Trending</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FRIENDS' RECENT READS -->
+    <div class="section-label">Friends' recent reads</div>
+    <div class="friends-section">
+      <div class="friend-row">
+
+        <div class="friend-card">
+          <div class="friend-avatar av-a">S</div>
+          <div class="friend-name">Sara</div>
+          <div class="friend-book">just finished Tomorrow, and Tomorrow</div>
+        </div>
+
+        <div class="friend-card">
+          <div class="friend-avatar av-b">J</div>
+          <div class="friend-name">James</div>
+          <div class="friend-book">started The Name of the Wind</div>
+        </div>
+
+        <div class="friend-card">
+          <div class="friend-avatar av-c">P</div>
+          <div class="friend-name">Priya</div>
+          <div class="friend-book">rated Demon Copperhead ★★★★★</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CURATED COLLECTIONS -->
+    <div class="section-label">Curated collections</div>
+    <div class="curated">
+
+      <div class="collection-card" onclick="window.location.href='discover.html'">
+        <div>
+          <div class="coll-title">Autumn mood reads</div>
+          <div class="coll-sub">12 books · cozy &amp; reflective</div>
+        </div>
+        <i class="ti ti-leaf coll-icon"></i>
+      </div>
+
+      <div class="collection-card light" onclick="window.location.href='discover.html'">
+        <div>
+          <div class="coll-title">If you loved Piranesi…</div>
+          <div class="coll-sub">8 books · eerie &amp; magical</div>
+        </div>
+        <i class="ti ti-sparkles coll-icon"></i>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-users"></i>
+        <span>Community</span>
+      </a>
+      <a class="nav-item active" href="home-feed.html">
+        <i class="ti ti-home"></i>
+        <span>Home</span>
+      </a>
+      <a class="nav-item" href="discover.html">
+        <i class="ti ti-compass"></i>
+        <span>Discover</span>
+      </a>
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-books"></i>
+        <span>My Shelves</span>
+      </a>
+      <a class="nav-item" href="home-feed.html">
+        <i class="ti ti-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+
+  </div><!-- end .app -->
+
+  <script>
+    // This function runs when you click a filter pill
+    // It removes "active" from all pills, then adds it to the one you clicked
+    function filterPill(clickedPill) {
+      // 1. Find all elements with class "pill"
+      const allPills = document.querySelectorAll('.pill');
+      // 2. Loop through them and remove "active" from each
+      allPills.forEach(function(pill) {
+        pill.classList.remove('active');
+      });
+      // 3. Add "active" to the pill that was clicked
+      clickedPill.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
